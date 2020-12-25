@@ -8,6 +8,7 @@ def home_view(request):
     return render(request, 'pages/home.html', context={}, status=200)
 
 def tweet_detail_view(request, tweet_id,*args, **kwargs):
+    # REST API
     data = {
         "id": tweet_id
     }
