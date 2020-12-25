@@ -9,6 +9,7 @@ def home_view(request):
 
 def tweet_detail_view(request, tweet_id,*args, **kwargs):
     # REST API
+    # Format JSON
     data = {
         "id": tweet_id
     }
