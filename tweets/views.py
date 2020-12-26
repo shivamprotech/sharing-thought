@@ -7,6 +7,14 @@ from .models import Tweet
 def home_view(request):
     return render(request, 'pages/home.html', context={}, status=200)
 
+def tweet_list_view(request):
+    tweets = Tweet.objects.all()
+    tweets_list = [{'id': tweet.id, 'content': tweet.content} for tweet in tweets]
+    data = {
+        "response": tweets_list
+    }
+    return JsonResponse(data)
+
 def tweet_detail_view(request, tweet_id,*args, **kwargs):
     # REST API
     # Format JSON

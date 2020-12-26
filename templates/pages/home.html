@@ -5,5 +5,36 @@ Sharing Thoughts
 {% endblock title %}
 
 {% block content %}
-  <h1>Hello World</h1>
+  <div id="title">
+    <h1>Hello World</h1>
+  </div>
+
+  <script>
+    const xhr = new XMLHttpRequest()
+    const method = 'GET'
+    const url = '/tweets'
+    const responseType = 'json'
+    const titleBlock = document.getElementById('title')
+    titleBlock.innerHTML = 'Loading...'
+    var tweets_list = ''
+
+    const formatTweet = (res) => {
+      return `<div id="tweet-${res.id}" class="border p-3 my-2">
+              <h3>${res.content}</h3>
+              <button class="btn btn-dark">Like</button>
+              </div>`
+    }
+
+    xhr.responseType = responseType
+    xhr.open(method, url)
+    xhr.onload = function() {
+      serverResponse = xhr.response;
+      serverResponse.response.forEach((res) => {
+        let tweet = formatTweet(res)
+        tweets_list += tweet
+      })
+      titleBlock.innerHTML = tweets_list
+    }
+    xhr.send()
+  </script>
 {% endblock content %}
