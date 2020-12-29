@@ -1,12 +1,27 @@
 import random
-from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse, JsonResponse, Http404
+from django.shortcuts import render
+from django.http import JsonResponse, Http404
+
+from .forms import TweetForm
 from .models import Tweet
 
 # Create your views here.
 
+
 def home_view(request):
     return render(request, 'pages/home.html', context={}, status=200)
+
+
+def tweet_create_view(request):
+    form = TweetForm(request.POST or None)
+    if form.is_valid():
+        obj = form.save(commit=False)
+        obj.save()
+        form = TweetForm()
+        if request.is_ajax():
+            return JsonResponse({"message": 'New Tweet Created'}, status=201)
+    return Http404()
+
 
 def tweet_list_view(request):
     tweets = Tweet.objects.all()
@@ -21,16 +36,17 @@ def tweet_list_view(request):
     }
     return JsonResponse(data)
 
-def tweet_detail_view(request, tweet_id,*args, **kwargs):
+
+def tweet_detail_view(request, tweet_id, *args, **kwargs):
     # REST API
     # Format JSON
     data = {
         "id": tweet_id
     }
     status = 200
-    try: 
+    try:
         tweet = Tweet.objects.get(id=tweet_id)
-    except:
+    except Exception:
         data['message'] = "Tweet not found."
         status = 404
     data['content'] = tweet.content
