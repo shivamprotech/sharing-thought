@@ -18,10 +18,14 @@ Sharing Thoughts
     titleBlock.innerHTML = 'Loading...'
     var tweets_list = ''
 
-    const formatTweet = (res) => {
-      return `<div id="tweet-${res.id}" class="border p-3 my-2">
-              <h3>${res.content}</h3>
-              <button class="btn btn-dark">Like</button>
+    function handleLikes(likes) {
+      return likes += 1;
+    }
+
+    const formatTweet = (tweet) => {
+      return `<div id="tweet-${tweet.id}" class="border p-3 my-2">
+              <h3>${tweet.content}</h3>
+              <button class="btn btn-sm btn-outline-dark" onclick="handleLikes(${tweet.likes})">Like <span>${tweet.likes}</span></button>
               </div>`
     }
 
