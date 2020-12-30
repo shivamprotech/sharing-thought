@@ -9,7 +9,7 @@ Sharing Thoughts
     {% csrf_token %}
     <div class="mb-3">
       <label class="form-label">Your Tweet</label>
-      <textarea class="form-control" name='content'></textarea>
+      <textarea required="true" class="form-control" name='content'></textarea>
     </div>
     <button type="submit" class="btn btn-dark">Tweet</button>
   </form>
@@ -21,7 +21,7 @@ Sharing Thoughts
   <script>
 
     var tweets_list = ''
-    const tweetsEl = document.getElementById('tweets')
+    const tweetsContainer = document.getElementById('tweets')
 
     const loadTweets = (tweetsBlock) => {
       const xhr = new XMLHttpRequest()
@@ -63,9 +63,10 @@ Sharing Thoughts
       xhr.onload = () => {
         if (xhr.status === 201) {
           const serverResponse = xhr.response
-          console.log(serverResponse)
-          const tweetsEl = document.getElementById('tweets')
-          loadTweets(tweetsEl)
+          const tweet = formatTweet(serverResponse)
+          tweets = tweetsContainer.innerHTML
+          tweetsContainer.innerHTML = tweet + tweets;
+          tweetForm.reset()
         }
       }
       xhr.send(tweetFormData)
@@ -84,6 +85,6 @@ Sharing Thoughts
               </div>`
     }
 
-    loadTweets(tweetsEl)
+    loadTweets(tweetsContainer)
   </script>
 {% endblock content %}
