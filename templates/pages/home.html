@@ -5,6 +5,8 @@ Sharing Thoughts
 {% endblock title %}
 
 {% block content %}
+  <div id="error-container" class="d-none alert alert-danger mt-2">
+  </div>
   <form method="POST" id="tweet-create-form" action="/create-tweet">
     {% csrf_token %}
     <div class="mb-3">
@@ -50,6 +52,19 @@ Sharing Thoughts
       const tweetForm = event.target
       const tweetFormData = new FormData(tweetForm)
 
+    function handleTweetErrorForm(msg, display) {
+      const errorContainer = document.getElementById('error-container')
+      if (display) {
+        errorContainer.innerHTML = msg;
+        errorContainer.classList.remove('d-none')
+        setTimeout(() => {
+          errorContainer.classList.add('d-none')
+        }, 5000);
+      } else {
+        errorContainer.setAttribute('class', 'd-none alert alert-danger mt-2')
+      }
+    }
+
       // Ajax Call
       const xhr = new XMLHttpRequest()
       const url = tweetForm.getAttribute('action')
@@ -62,12 +77,24 @@ Sharing Thoughts
       xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest')
       xhr.onload = () => {
         if (xhr.status === 201) {
+          handleTweetErrorForm('', false)
           const serverResponse = xhr.response
           const tweet = formatTweet(serverResponse)
           tweets = tweetsContainer.innerHTML
           tweetsContainer.innerHTML = tweet + tweets;
           tweetForm.reset()
+        } else if (xhr.status === 400) {
+          const serverErrorResponse = xhr.response
+          const errorMessageList = serverErrorResponse['content']
+          errorMessageList.forEach((errorMessage) => {
+            handleTweetErrorForm(errorMessage, true)
+          })
+        } else if (xhr.status === 500) {
+          handleTweetErrorForm('Internal Server Error', true)
         }
+      }
+      xhr.onerror = () => {
+        alert("An error occurred. Please try again later.")
       }
       xhr.send(tweetFormData)
     }
