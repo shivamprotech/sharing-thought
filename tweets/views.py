@@ -1,4 +1,3 @@
-import random
 from django.shortcuts import render
 from django.http import JsonResponse, Http404
 
@@ -19,18 +18,13 @@ def tweet_create_view(request):
         obj.save()
         form = TweetForm()
         if request.is_ajax():
-            return JsonResponse({"message": 'New Tweet Created'}, status=201)
+            return JsonResponse(obj.serialize(), status=201)
     return Http404()
 
 
 def tweet_list_view(request):
     tweets = Tweet.objects.all()
-    tweets_list = [
-        {
-            'id': tweet.id,
-            'content': tweet.content,
-            'likes': random.randint(0, 100)
-        } for tweet in tweets]
+    tweets_list = [tweet.serialize() for tweet in tweets]
     data = {
         "response": tweets_list
     }
