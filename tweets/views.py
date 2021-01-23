@@ -19,7 +19,8 @@ def tweet_create_view(request):
         form = TweetForm()
         if request.is_ajax():
             return JsonResponse(obj.serialize(), status=201)
-    return Http404()
+    if form.errors:
+        return JsonResponse(form.errors, status=400)
 
 
 def tweet_list_view(request):
