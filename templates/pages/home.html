@@ -47,11 +47,6 @@ Sharing Thoughts
 
     const tweetCreateForm = document.getElementById('tweet-create-form')
 
-    function handleTweetCreateFormDidSubmit(event) {
-      event.preventDefault()
-      const tweetForm = event.target
-      const tweetFormData = new FormData(tweetForm)
-
     function handleTweetErrorForm(msg, display) {
       const errorContainer = document.getElementById('error-container')
       if (display) {
@@ -64,6 +59,11 @@ Sharing Thoughts
         errorContainer.setAttribute('class', 'd-none alert alert-danger mt-2')
       }
     }
+
+    function handleTweetCreateFormDidSubmit(event) {
+      event.preventDefault()
+      const tweetForm = event.target
+      const tweetFormData = new FormData(tweetForm)
 
       // Ajax Call
       const xhr = new XMLHttpRequest()
@@ -89,7 +89,11 @@ Sharing Thoughts
           errorMessageList.forEach((errorMessage) => {
             handleTweetErrorForm(errorMessage, true)
           })
-        } else if (xhr.status === 500) {
+        } else if (xhr.status === 401) {
+          alert('You must login!')
+          window.location.href = '/login'
+        }
+        else if (xhr.status === 500) {
           handleTweetErrorForm('Internal Server Error', true)
         }
       }
