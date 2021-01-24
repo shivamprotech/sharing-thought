@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import JsonResponse, Http404
+from django.http import JsonResponse
 
 from .forms import TweetForm
 from .models import Tweet
@@ -12,9 +12,15 @@ def home_view(request):
 
 
 def tweet_create_view(request):
+    user = request.user
+    if not request.user.is_authenticated:
+        request.user = None
+        if request.is_ajax():
+            return JsonResponse({}, status=401)
     form = TweetForm(request.POST or None)
     if form.is_valid():
         obj = form.save(commit=False)
+        obj.user = user
         obj.save()
         form = TweetForm()
         if request.is_ajax():
