@@ -34,7 +34,7 @@ Sharing Thoughts
       xhr.open(method, url)
       xhr.onload = () => {
         serverResponse = xhr.response;
-        serverResponse.response.forEach((res) => {
+        serverResponse.forEach((res) => {
           let tweet = formatTweet(res)
           tweets_list += tweet
         })
