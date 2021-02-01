@@ -89,7 +89,7 @@ Sharing Thoughts
           errorMessageList.forEach((errorMessage) => {
             handleTweetErrorForm(errorMessage, true)
           })
-        } else if (xhr.status === 401) {
+        } else if (xhr.status === 401 || xhr.status === 403) {
           alert('You must login!')
           window.location.href = '/login'
         }
