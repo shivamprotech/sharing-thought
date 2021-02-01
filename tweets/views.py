@@ -3,6 +3,7 @@ from django.http import JsonResponse
 
 from .forms import TweetForm
 from .models import Tweet
+from .serializer import TweetSerializer
 
 # Create your views here.
 
@@ -12,6 +13,14 @@ def home_view(request):
 
 
 def tweet_create_view(request):
+    serializer = TweetSerializer(data=request.POST)
+    if serializer.is_valid():
+        serializer.save(user=request.user)
+        return JsonResponse(serializer.data, status=201)
+    return JsonResponse({}, status=400)
+
+
+def tweet_create_view_pure_django(request):
     user = request.user
     if not request.user.is_authenticated:
         request.user = None
