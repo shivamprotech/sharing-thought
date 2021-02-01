@@ -33,7 +33,7 @@ def tweet_create_view_pure_django(request):
         obj.save()
         form = TweetForm()
         if request.is_ajax():
-            return JsonResponse(obj.serialize(), status=201)
+                return JsonResponse(obj.serialize(), status=201)
     if form.errors:
         return JsonResponse(form.errors, status=400)
 
