@@ -8,6 +8,7 @@ from rest_framework.status import (
     HTTP_200_OK,
     HTTP_201_CREATED,
     HTTP_400_BAD_REQUEST,
+    HTTP_403_FORBIDDEN,
     HTTP_404_NOT_FOUND
 )
 
@@ -47,6 +48,22 @@ def tweet_detail_view(request, tweet_id, *args, **kwargs):
     tweet = qs.first()
     serilizer = TweetSerializer(tweet)
     return Response(serilizer.data, status=HTTP_200_OK)
+
+
+@api_view(['GET', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def tweet_delete_view(request, tweet_id, *args, **kwargs):
+    tweets = Tweet.objects.filter(id=tweet_id)
+    if not tweets.exists():
+        return Response({}, status=HTTP_404_NOT_FOUND)
+    tweet = tweets.filter(user=request.user)
+    if not tweet.exists():
+        return Response(
+            {"message": "You cannot delete this tweet"},
+            status=HTTP_403_FORBIDDEN
+        )
+    tweet.delete()
+    return Response({"message": "Tweet has been deleted"}, status=HTTP_200_OK)
 
 
 def tweet_create_view_pure_django(request):
