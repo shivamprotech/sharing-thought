@@ -14,7 +14,7 @@ from rest_framework.status import (
 
 from tweets.forms import TweetForm
 from tweets.models import Tweet
-from tweets.serializer import TweetSerializer
+from tweets.serializer import TweetSerializer, TweetActionSerializer
 
 # Create your views here.
 
@@ -64,6 +64,30 @@ def tweet_delete_view(request, tweet_id, *args, **kwargs):
         )
     tweet.delete()
     return Response({"message": "Tweet has been deleted"}, status=HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def tweet_action_view(request, *args, **kwargs):
+    serializer = TweetActionSerializer(data=request.data)
+    if serializer.is_valid(raise_exception=True):
+        data = serializer.validated_data
+        tweet_id = data.get("id")
+        action = data.get("action")
+
+        tweets = Tweet.objects.filter(id=tweet_id)
+        if not tweets.exists():
+            return Response({}, status=HTTP_404_NOT_FOUND)
+        tweet = tweets.first()
+        if action == 'like':
+            tweet.likes.add(request.user)
+            obj = TweetSerializer(tweet)
+            return Response(obj.data, status=HTTP_200_OK)
+        elif action == 'unlike':
+            tweet.likes.remove(request.user)
+        elif action == 'retweet':
+            pass
+    return Response({}, status=HTTP_200_OK)
 
 
 def tweet_create_view_pure_django(request):

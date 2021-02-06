@@ -128,6 +128,8 @@ STATIC_URL = '/static/'
 
 MAX_TWEET_LENGTH = 300
 
+TWEET_ACTION_OPTIONS = ['like', 'unlike', 'retweet']
+
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
