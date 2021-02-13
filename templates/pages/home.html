@@ -122,14 +122,13 @@ Sharing Thoughts
       return cookieValue;
     }
 
-    function tweetActionHandler(tweet_id, currentCount) {
-      console.log(tweet_id, currentCount)
+    function tweetActionHandler(tweet_id, currentCount, action) {
       const csrftoken = getCookie('csrftoken');
       const url = "api/tweets/action"
       const method = "POST"
       const data = JSON.stringify({
         id: tweet_id,
-        action: 'like',
+        action: action,
       })
 
       const xhr = new XMLHttpRequest()
@@ -146,32 +145,36 @@ Sharing Thoughts
 
     const likeButton = (tweet, action) => {
       return `<button class="btn btn-sm btn-outline-dark"
-              onclick="tweetActionHandler(${tweet.id}, ${tweet.likes}, ${tweet.action})">
+              onclick="tweetActionHandler(${tweet.id}, ${tweet.likes}, ${action})">
               Like
               <span>${tweet.likes}</span></button>`
     }
 
     const unLikeButton = (tweet, action) => {
+      console.log(action)
       return `<button class="btn btn-sm btn-outline-primary"
-              onclick="tweetActionHandler(${tweet.id}, ${tweet.likes}, ${tweet.action})">
+              onclick="tweetActionHandler(${tweet.id}, ${tweet.likes}, ${action})">
               Unlike
               </button>`
     }
 
     const reTweetButton = (tweet, action) => {
       return `<button class="btn btn-sm btn-outline-success"
-              onclick="tweetActionHandler(${tweet.id}, ${tweet.likes}, ${tweet.action})">
+              onclick="tweetActionHandler(${tweet.id}, ${tweet.likes}, ${action})">
               Retweet
               </button>`
     }
 
     const formatTweet = (tweet) => {
+      like = "like";
+      unlike = "unlike";
+      retweet = "retweet";
       return `<div id="tweet-${tweet.id}" class="border p-3 my-2">
                 <h5>${tweet.content}</h5>
                 <div class="btn-group">
-                ${likeButton(tweet, 'like')}
-                ${unLikeButton(tweet, 'unlike')}
-                ${reTweetButton(tweet, 'retweet')}
+                ${likeButton(tweet, like)}
+                ${unLikeButton(tweet, unlike)}
+                ${reTweetButton(tweet, retweet)}
                 </div>
               </div>`
     }
