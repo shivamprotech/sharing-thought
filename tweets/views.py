@@ -9,18 +9,22 @@ from rest_framework.status import (
     HTTP_201_CREATED,
     HTTP_400_BAD_REQUEST,
     HTTP_403_FORBIDDEN,
-    HTTP_404_NOT_FOUND
+    HTTP_404_NOT_FOUND,
 )
 
 from tweets.forms import TweetForm
 from tweets.models import Tweet
-from tweets.serializer import TweetSerializer, TweetActionSerializer
+from tweets.serializer import (
+    TweetSerializer,
+    TweetActionSerializer,
+    TweetCreateSerializer,
+)
 
 # Create your views here.
 
 
 def home_view(request):
-    return render(request, 'pages/home.html', context={}, status=200)
+    return render(request, "pages/home.html", context={}, status=200)
 
 
 @api_view(["GET", "POST"])
@@ -33,14 +37,14 @@ def tweet_create_view(request):
     return Response({}, status=HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET'])
+@api_view(["GET"])
 def tweet_list_view(request):
     tweets = Tweet.objects.all()
     serializer = TweetSerializer(tweets, many=True)
     return Response(serializer.data, status=HTTP_200_OK)
 
 
-@api_view(['GET'])
+@api_view(["GET"])
 def tweet_detail_view(request, tweet_id, *args, **kwargs):
     qs = Tweet.objects.filter(id=tweet_id)
     if not qs:
@@ -50,7 +54,7 @@ def tweet_detail_view(request, tweet_id, *args, **kwargs):
     return Response(serilizer.data, status=HTTP_200_OK)
 
 
-@api_view(['GET', 'DELETE'])
+@api_view(["GET", "DELETE"])
 @permission_classes([IsAuthenticated])
 def tweet_delete_view(request, tweet_id, *args, **kwargs):
     tweets = Tweet.objects.filter(id=tweet_id)
@@ -59,14 +63,13 @@ def tweet_delete_view(request, tweet_id, *args, **kwargs):
     tweet = tweets.filter(user=request.user)
     if not tweet.exists():
         return Response(
-            {"message": "You cannot delete this tweet"},
-            status=HTTP_403_FORBIDDEN
+            {"message": "You cannot delete this tweet"}, status=HTTP_403_FORBIDDEN
         )
     tweet.delete()
     return Response({"message": "Tweet has been deleted"}, status=HTTP_200_OK)
 
 
-@api_view(['POST'])
+@api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def tweet_action_view(request, *args, **kwargs):
     serializer = TweetActionSerializer(data=request.data)
@@ -74,19 +77,24 @@ def tweet_action_view(request, *args, **kwargs):
         data = serializer.validated_data
         tweet_id = data.get("id")
         action = data.get("action")
-
+        print(action)
         tweets = Tweet.objects.filter(id=tweet_id)
         if not tweets.exists():
             return Response({}, status=HTTP_404_NOT_FOUND)
         tweet = tweets.first()
-        if action == 'like':
+        if action == "like":
             tweet.likes.add(request.user)
             obj = TweetSerializer(tweet)
             return Response(obj.data, status=HTTP_200_OK)
-        elif action == 'unlike':
+        elif action == "unlike":
             tweet.likes.remove(request.user)
-        elif action == 'retweet':
-            pass
+        elif action == "retweet":
+            parent = tweet
+            new_tweet = Tweet.objects.create(
+                user=request.user, parent=parent, content=tweet.content
+            )
+            serializer = TweetSerializer(new_tweet)
+            return Response(serializer.data, status=HTTP_200_OK)
     return Response({}, status=HTTP_200_OK)
 
 
@@ -111,23 +119,19 @@ def tweet_create_view_pure_django(request):
 def tweet_list_view_pure_django(request):
     tweets = Tweet.objects.all()
     tweets_list = [tweet.serialize() for tweet in tweets]
-    data = {
-        "response": tweets_list
-    }
+    data = {"response": tweets_list}
     return JsonResponse(data)
 
 
 def tweet_detail_view_pure_django(request, tweet_id, *args, **kwargs):
     # REST API
     # Format JSON
-    data = {
-        "id": tweet_id
-    }
+    data = {"id": tweet_id}
     status = 200
     try:
         tweet = Tweet.objects.get(id=tweet_id)
     except Exception:
-        data['message'] = "Tweet not found."
+        data["message"] = "Tweet not found."
         status = 404
-    data['content'] = tweet.content
+    data["content"] = tweet.content
     return JsonResponse(data, status=status)
