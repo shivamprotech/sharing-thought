@@ -23,10 +23,10 @@ def home_view(request):
     return render(request, 'pages/home.html', context={}, status=200)
 
 
-@api_view(['POST'])
+@api_view(["GET", "POST"])
 @permission_classes([IsAuthenticated])
 def tweet_create_view(request):
-    serializer = TweetSerializer(data=request.POST)
+    serializer = TweetCreateSerializer(data=request.POST)
     if serializer.is_valid(raise_exception=True):
         serializer.save(user=request.user)
         return Response(serializer.data, status=HTTP_201_CREATED)
